@@ -26,6 +26,7 @@ class JSBClient(discord.Client):
         self.tree.copy_global_to(guild=JER_GUILD)
         await self.tree.sync(guild=JER_GUILD)
 
+
 intents = discord.Intents.default()
 handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 client = JSBClient(intents=intents)
@@ -36,10 +37,13 @@ async def on_ready():
     print('------')
 
     event_channel = client.get_channel(EVENT_CHANNEL_ID)
-    # if not event_channel.last_message_id is None: 
-    #     last_message = await event_channel.fetch_message(event_channel.last_message_id)
-    #     if last_message.author.id == client.user.id:
-    #         await last_message.delete()
+    if event_channel.last_message_id is not None: 
+        try: 
+            last_message = await event_channel.fetch_message(event_channel.last_message_id)
+            if last_message.author.id == client.user.id:
+                await last_message.delete()
+        except discord.NotFound:
+            pass
     
     title = "Jer's 一周年纪念卡 ✨"
     description = '时光不老，我们不散！💕'
@@ -70,28 +74,36 @@ async def membercard(interaction: discord.Interaction):
     membercard_file_path = f'{MEMBERCARDS_DIR}/{file_name}'
     pfp_file_path = f'{PFP_DIR}/{file_name}'
 
-    membercard_exists = os.path.exists(membercard_file_path)
-    if not membercard_exists:
-        highest_role = ''
-        if OG_ROLE_ID in member_roles:
-            highest_role = 'og'
-        elif RAIDER_ROLE_ID in member_roles:
-            highest_role = 'raider'
-        elif FEMALE_ROLE_ID in member_roles: 
-            highest_role = 'female'
-        elif MALE_ROLE_ID in member_roles:
-            highest_role = 'male'
+    # membercard_exists = os.path.exists(membercard_file_path)
+    # if not membercard_exists:
+    highest_role_id = member_roles[-1]
+    highest_role = ''
 
-        if not highest_role:
-            await interaction.response.send_message(f'请先到 <#{ROLE_CHANNEL_ID}> 领取身份组。', ephemeral=True)
-            return
+    if highest_role_id == CORE_TEAM_ROLE_ID:
+        highest_role = 'core_team'
+    elif highest_role_id == COLLAB_TEAM_ROLE_ID:
+        highest_role = 'collab_team'
+    elif highest_role_id == SMART_TRADER_ROLE_ID:
+        highest_role = 'smart_trader'
+    elif highest_role_id == OG_ROLE_ID:
+        highest_role = 'og'
+    elif highest_role_id == RAIDER_ROLE_ID:
+        highest_role = 'raider'
+    elif highest_role_id == FEMALE_ROLE_ID:
+        highest_role = 'female'
+    elif highest_role_id == MALE_ROLE_ID:
+        highest_role = 'male'
 
-        pfp_exists = os.path.exists(pfp_file_path)
-        if not pfp_exists:
-            await member.display_avatar.with_size(256).save(pfp_file_path)
+    if not highest_role:
+        await interaction.response.send_message(f'请先到 <#{ROLE_CHANNEL_ID}> 领取身份组。', ephemeral=True)
+        return
 
-        joined_date = member.joined_at.date()
-        create_membercard(member.id, f'{member.name}{member.discriminator}', highest_role, f'{get_joined_days(joined_date)}')
+    pfp_exists = os.path.exists(pfp_file_path)
+    if not pfp_exists:
+        await member.display_avatar.with_size(256).save(pfp_file_path)
+
+    joined_date = member.joined_at.date()
+    create_membercard(member.id, f'{member.name}{member.discriminator}', highest_role, f'{get_joined_days(joined_date)}')
 
     file = discord.File(membercard_file_path, filename=file_name)
     membercard_embed = discord.Embed(title='我的一周年纪念卡 ✨', description='No utilities, no roadmap. Just for the vibes!🤟')

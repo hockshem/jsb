@@ -9,6 +9,9 @@ def create_membercard(user_id, name, role, joined_days):
     pfp_url = f'{PFP_DIR}/{user_id}.png'
     template_url = f'{TEMPLATE_DIR}/{role}.jpg'
 
+    if user_id == 921256448669933589:
+        template_url = f'{TEMPLATE_DIR}/belle.jpg'
+
     pfp = Image.open(pfp_url)
     template = Image.open(template_url)
 
