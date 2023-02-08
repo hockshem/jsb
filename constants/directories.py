@@ -1,3 +1,3 @@
-PFP_DIR = './pfps'
-MEMBERCARDS_DIR = './membercards'
+PFP_DIR = './data/pfps'
+MEMBERCARDS_DIR = './data/membercards'
 TEMPLATE_DIR = './templates'
