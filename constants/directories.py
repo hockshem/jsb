@@ -1,3 +1,5 @@
 PFP_DIR = './data/pfps'
 MEMBERCARDS_DIR = './data/membercards'
 TEMPLATE_DIR = './templates'
+POINTS_DIR = './data/points'
+COGS_DIR = './cogs'
