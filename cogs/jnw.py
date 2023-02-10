@@ -33,7 +33,6 @@ class JNWPoints(commands.GroupCog, name='jnw'):
     @app_commands.checks.has_role(CORE_TEAM_ROLE_ID)
     async def update_member(self, interaction: discord.Interaction, points: int, target: Union[discord.Member, discord.Role]):
         """Update the $JNW points of the selected member or members of the selected role."""
-        await interaction.response.defer(thinking=True)
         d = ''
         t = ''
         if points > 0:
@@ -57,10 +56,11 @@ class JNWPoints(commands.GroupCog, name='jnw'):
             await interaction.response.send_message(embed=embed)
         
         elif isinstance(target, discord.Role):
+            await interaction.response.defer(thinking=True, ephemeral=True)
+
             members = target.members
             total_affected = len(members)
             member_id = [member.id for member in members]
-            print(member_id)  
             memberlist = [f'<@{id}>' for id in member_id]
             
             update_pts(member_id, points)
@@ -71,7 +71,7 @@ class JNWPoints(commands.GroupCog, name='jnw'):
             if len(namelist_str) < 1000:
                 embed.add_field(name='Member List', value=namelist_str)
 
-            await interaction.response.send_message(embed=embed)
+            await interaction.followup.send(embed=embed)
         
         else:
             print(f'{type(target)}: {target}')
