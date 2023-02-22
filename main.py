@@ -1,6 +1,5 @@
 from dotenv import load_dotenv
 import os 
-from typing import List
 
 import discord
 from discord.ext import commands
@@ -8,32 +7,13 @@ from discord.ext.commands import Context
 import logging
 
 from constants.directories import COGS_DIR
-from membercard import create_membercard_embed
-
-class JerSideBitch(commands.Bot):
-    def __init__(
-        self, 
-        *args,
-        initial_extensions: List[str],
-        **kwargs,
-    ):
-        super().__init__(*args, **kwargs)
-        self.initial_extensions = initial_extensions
-    
-    async def setup_hook(self) -> None:
-        for extension in self.initial_extensions:
-            await self.load_extension(extension)
-    
-    async def on_ready(self):
-        print(f'Logged in as {bot.user} (ID: {bot.user.id})')
-        print('------')
-        await create_membercard_embed(self)
+from jersidebitch import JerSideBitch
 
 load_dotenv()
 token = os.getenv('BOT_TOKEN')
 
 JER_GUILD = discord.Object(id=939846269562667059)
-PREFIX = '?'
+PREFIX = '!'
 
 intents = discord.Intents.default()
 intents.message_content = True
