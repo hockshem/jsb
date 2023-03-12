@@ -1,11 +1,36 @@
 import discord
 from discord.ext import commands
+from discord.ext import menus
 from discord import app_commands
 from typing import Union, Optional
-
-from jnw_fileops import get_acc_pts, get_bal_pts, update_pts
+from discord.ext.commands import Context
+from jnw_fileops import get_acc_pts, get_bal_pts, update_pts, get_top_pts
 from constants.roles import CORE_TEAM_ROLE_ID
 from constants.channels import RECORDS_CHANNEL_ID
+
+class JNWPageSource(menus.ListPageSource):
+    def __init__(self, entries, *, per_page=10):
+        super().__init__(entries, per_page=per_page)
+    
+    def format_page(self, menu, page):
+        embed = discord.Embed(title='Leaderboard 🏆')
+        offset = menu.current_page * self.per_page
+
+        rank_str = ''
+        members_str = ''
+        bal_str = ''
+
+        for rank, (member, point) in enumerate(page, start=offset):
+            rank += 1
+            rank_str += f'{rank}\n'
+            members_str += f'<@{member}>\n'
+            bal_str += f'{point}\n'
+        
+        embed.add_field(name='排名', value=rank_str, inline=True)
+        embed.add_field(name='成员', value=members_str, inline=True)
+        embed.add_field(name='$JNW', value=bal_str, inline=True)
+
+        return embed
 
 class JNWPoints(commands.GroupCog, name='jnw'):
     def __init__(self, bot: commands.Bot) -> None:
@@ -47,6 +72,22 @@ class JNWPoints(commands.GroupCog, name='jnw'):
         embed.set_thumbnail(url=avatar)
         
         await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name='leaderboard')
+    @app_commands.describe(limit='the top N members to view in the leaderboard')
+    async def view_leaderboard(
+        self,
+        interaction: discord.Interaction,
+        limit: Optional[int] = 100
+    ) -> None:
+        """View the members with the top $JNW in the server."""
+        top_points = get_top_pts(limit)
+        page_source = JNWPageSource(top_points)
+        menu = menus.MenuPages(page_source)
+        ctx = await Context.from_interaction(interaction)
+        await interaction.response.send_message("Sending leaderboard...", ephemeral=True)
+        await menu.start(ctx)
+        
     
     # TODO: add update reason / reference
     @app_commands.command(name='update')
