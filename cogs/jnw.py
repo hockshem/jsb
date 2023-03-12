@@ -23,7 +23,7 @@ class JNWPoints(commands.GroupCog, name='jnw'):
     async def view_points(
         self, 
         interaction: discord.Interaction, 
-        target_member: Optional[discord.Member] = None
+        target_member: Optional[discord.Member]
     ) -> None:
         """Get the balance $JNW of yourself or the selected member."""
         target_member = target_member or interaction.user
@@ -48,7 +48,7 @@ class JNWPoints(commands.GroupCog, name='jnw'):
         
         await interaction.response.send_message(embed=embed)
     
-
+    # TODO: add update reason / reference
     @app_commands.command(name='update')
     @app_commands.describe(points='amount of $JNW to update', target='selected member or role for the entered $JNW to be updated')
     @app_commands.checks.has_role(CORE_TEAM_ROLE_ID)
