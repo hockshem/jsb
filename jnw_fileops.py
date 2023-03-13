@@ -17,6 +17,14 @@ def get_acc_pts(user_id: int):
 def get_bal_pts(user_id: int):
     return _get_pts(user_id, 'bal')
 
+def get_top_pts(limit: int):
+    top_pts = []
+    sorted_df = points_df.sort_values(by=column_names_map['bal'], ascending=False)
+    for i in sorted_df.head(limit).index:
+        pts = sorted_df.at[i, column_names_map['bal']]
+        top_pts.append([i, pts])
+    return top_pts
+
 def _get_pts(user_id: int, pts_type: str):
     if user_id not in points_df.index:
         points_df.loc[user_id] = 0 
